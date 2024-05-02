@@ -1,35 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { callGetEmplListAPI, myAxiosCall } from "../API";
+import { Navigate, useNavigate } from "react-router-dom";
 
 function CreateUser() {
-  const [name, setName] = useState("");
-  const [pwd, setPwd] = useState("");
-  const [email, setEmail] = useState("");
-  const [sex, setSex] = useState("");
-  const [country, setCountry] = useState("");
+  const navigate = useNavigate();
+  const [empList, setEmpList] = useState([]);
   const [empDetails, setDetails] = useState({
     name: "",
-    sex: "",
+    contact: "",
     email: "",
-    country: "",
-    pwd: "",
   });
 
-  //   const handleChange = (e) => {
-  //     e.preventDefault();
-  //     setName(e.target.value);
-  //   };
+  useEffect(() => {
+    callGetEmployeesAPI();
+    // callAxiosAPI();
+  }, []);
 
-  const handleChange = (nam, val) => {
-    console.log(nam, " , ", val);
-    // let obj = { ...empDetails, nam: val };
-    setDetails((prevObj) => ({ ...prevObj, nam: val }));
-    console.log("Obj: ", empDetails);
+  // const callAxiosAPI = () => {
+  //   const callAPI = myAxiosCall();
+  //   console.log("Axios resp:", callAPI);
+  // };
+  const callGetEmployeesAPI = () => {
+    callGetEmplListAPI().then((res) => {
+      setEmpList(res);
+    });
+  };
+  const handleChange = (key, value) => {
+    setDetails({ ...empDetails, [key]: value });
+  };
+
+  const goToPage = (id) => {
+    navigate("/contact/" + id);
   };
   return (
     <div>
       <div className="row">
         <div className="col"></div>
-        <div className="col">Details:{empDetails.name}</div>
+        <div className="col">Length:{empList.length}</div>
         <div className="col"></div>
       </div>
       <br></br>
@@ -51,15 +58,23 @@ function CreateUser() {
                 </td>
               </tr>
               <tr>
-                <td>Password:</td>
+                <td>Contact:</td>
                 <td>
-                  <input type="password" name="password" />
+                  <input
+                    type="text"
+                    name="contact"
+                    onChange={(e) => handleChange("contact", e.target.value)}
+                  />
                 </td>
               </tr>
               <tr>
                 <td>Email:</td>
                 <td>
-                  <input type="email" name="email" />
+                  <input
+                    type="email"
+                    name="email"
+                    onChange={(e) => handleChange("email", e.target.value)}
+                  />
                 </td>
               </tr>
               <tr>
@@ -95,6 +110,39 @@ function CreateUser() {
       </div>
       <div>
         <br />
+        <div className="row">
+          <div className="col"></div>
+          <div className="col">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Contact</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {empList.map((employee, index) => (
+                  <tr key={index}>
+                    <td>{employee.empName}</td>
+                    <td>{employee.email}</td>
+                    <td>{employee.contact}</td>
+                    <td>
+                      <button
+                        className="btn btn-primary"
+                        onClick={(e) => navigate("/contact/" + employee.empID)}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="col"></div>
+        </div>
       </div>
     </div>
   );
